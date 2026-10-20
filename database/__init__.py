@@ -13,16 +13,35 @@ load_dotenv()
 from utils.logger import get_logger
 logger = get_logger("database")
 
-DB_PATH = os.environ.get("DB_PATH", "tutor.db")
+DEFAULT_DB_PATH = "tutor.db"
+_initializing = False
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    # Read the path for each connection so tests and deployments can configure
+    # DB_PATH before the first request, even after this module is imported.
+    db_path = os.environ.get("DB_PATH", DEFAULT_DB_PATH)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
+
+    # Test clients may skip FastAPI lifespan events and may set DB_PATH after
+    # importing the app. Initialize a newly selected database on first use.
+    if not _initializing:
+        has_users = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'users'"
+        ).fetchone()
+        if has_users is None:
+            conn.close()
+            init_db()
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+
     return conn
 
 
 def init_db():
+    global _initializing
+    _initializing = True
     conn = get_db()
     cur = conn.cursor()
 
@@ -141,7 +160,13 @@ def init_db():
 
     conn.commit()
     conn.close()
+    _initializing = False
     logger.info("Database initialized. Default admin: admin@tutor.com / admin123")
+
+
+# Prepare the schema during import as well as application startup. This keeps
+# direct ASGI clients and scripts safe when they do not trigger lifespan events.
+init_db()
 
 
 # Convenience DB helpers
