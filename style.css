@@ -735,3 +735,117 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   .chat-wrapper { height: 400px; }
   .welcome-banner { flex-direction: column; text-align: center; }
 }
+
+/* ─── Modern visual refresh ─────────────────────────── */
+:root {
+  --bg-base: #f5f7fb;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8faff;
+  --bg-input: #f8fafc;
+  --accent: #635bff;
+  --accent-bright: #5148e5;
+  --accent-dim: #eeecff;
+  --accent-glow: rgba(99, 91, 255, 0.14);
+  --success: #159570;
+  --warning: #d58b12;
+  --danger: #d84f5f;
+  --text-primary: #172033;
+  --text-secondary: #647089;
+  --text-muted: #94a0b5;
+  --border: #e7ebf3;
+  --border-accent: rgba(99, 91, 255, 0.26);
+  --shadow: 0 16px 45px rgba(37, 49, 83, 0.08);
+  --shadow-accent: 0 12px 30px rgba(99, 91, 255, 0.14);
+}
+
+body {
+  background: radial-gradient(circle at 85% -10%, #ebe9ff 0, transparent 34%), var(--bg-base);
+  color: var(--text-primary);
+}
+
+button, input, textarea { -webkit-tap-highlight-color: transparent; }
+
+.sidebar {
+  width: 248px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--border);
+  padding: 24px 14px 18px;
+}
+
+.sidebar-brand { padding: 0 12px 24px; }
+.sidebar-brand .brand-icon, .auth-logo, .chat-avatar, .message.assistant .msg-icon {
+  background: linear-gradient(135deg, #6c63ff, #9a7cff);
+  box-shadow: 0 8px 18px rgba(99,91,255,.2);
+}
+.sidebar-brand .brand-name { color: var(--text-primary); }
+.sidebar-nav { padding: 18px 0; }
+.nav-item { border: 1px solid transparent; color: var(--text-secondary); }
+.nav-item:hover { background: #f5f6ff; color: var(--accent-bright); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent-bright); border-color: var(--border-accent); }
+
+.main { max-width: 1180px; padding: 38px 44px; }
+.card, .stat-card, .chat-wrapper, .auth-card, .summary-card {
+  box-shadow: var(--shadow);
+  border-color: var(--border);
+}
+.card { padding: 26px; }
+.stat-card { padding: 20px; }
+.stat-card .stat-value { color: var(--accent-bright); font-size: 2.15rem; letter-spacing: -0.04em; }
+
+.welcome-banner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(110deg, #5148df 0%, #766cf2 56%, #9a7cff 100%);
+  border: 0;
+  box-shadow: 0 18px 34px rgba(88, 78, 224, .22);
+  padding: 30px 34px;
+}
+.welcome-banner::after {
+  content: "";
+  position: absolute;
+  width: 240px; height: 240px;
+  right: -60px; top: -95px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+}
+.welcome-text h2, .welcome-text p { position: relative; z-index: 1; color: #fff; }
+.welcome-text p { color: rgba(255,255,255,.78); }
+.welcome-icon { position: relative; z-index: 1; opacity: .9; }
+
+.chat-wrapper { min-height: 560px; height: calc(100vh - 300px); }
+.chat-header { background: #fff; padding: 16px 22px; }
+.chat-footer { background: #fff; padding: 16px 18px 18px; }
+.chat-messages { padding: 24px; }
+.chat-input { background: #f8f9fd; border-color: #dfe4ef; padding: 13px 15px; }
+.chat-input:focus { box-shadow: 0 0 0 4px var(--accent-glow); }
+.message.user .msg-bubble { background: linear-gradient(135deg, #635bff, #756cf4); box-shadow: 0 8px 18px rgba(99,91,255,.16); }
+.message.assistant .msg-bubble { background: #f7f8fc; border-color: #e9edf5; }
+
+.btn { border-radius: 10px; min-height: 42px; }
+.btn-primary { background: linear-gradient(135deg, #635bff, #756cf4); box-shadow: 0 8px 18px rgba(99,91,255,.18); }
+.btn-primary:hover { background: linear-gradient(135deg, #5148e5, #635bff); transform: translateY(-1px); }
+.btn-ghost { background: #fff; }
+.form-input { background: #f8f9fd; border-color: #dfe4ef; border-radius: 10px; padding: 12px 14px; }
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+
+.auth-page { background: radial-gradient(circle at 10% 15%, #e7e4ff 0, transparent 32%), radial-gradient(circle at 90% 80%, #dcf6f0 0, transparent 28%), var(--bg-base); }
+.auth-card { max-width: 440px; padding: 42px; border-radius: 24px; }
+.auth-header h1 { letter-spacing: -0.03em; }
+.auth-logo { border-radius: 16px; }
+
+.hint-panel { background: #fff; box-shadow: var(--shadow); }
+.hint-btn { background: #f8f9fd; border-color: #e1e6f0; }
+.hint-btn:hover { background: var(--accent-dim); }
+
+@media (max-width: 900px) {
+  .main { padding: 28px 24px; }
+  .sidebar { width: 220px; }
+}
+
+@media (max-width: 768px) {
+  .main { padding: 20px 16px; }
+  .auth-card { padding: 30px 24px; }
+  .chat-wrapper { min-height: 420px; height: 62vh; }
+}
