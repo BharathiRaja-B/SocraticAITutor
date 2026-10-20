@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Personal Tutor — Admin</title>
+  <title>Still — Platform overview</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,31 +15,32 @@
   <!-- ─── Sidebar ──────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-icon">🛡️</div>
+      <div class="brand-icon">s.</div>
       <div>
-        <div class="brand-name">Admin Panel</div>
-        <div class="brand-sub">AI Personal Tutor</div>
+        <div class="brand-name">still.</div>
+        <div class="brand-sub">Learning, in focus</div>
       </div>
     </div>
 
     <nav class="sidebar-nav">
+      <div class="nav-caption">PLATFORM</div>
       <button class="nav-item active" onclick="showSection('analytics')" id="nav-analytics">
-        <span class="nav-icon">📊</span> Analytics
+        <span class="nav-icon">◫</span> Overview
       </button>
       <button class="nav-item" onclick="showSection('students')" id="nav-students">
-        <span class="nav-icon">👥</span> Students
+        <span class="nav-icon">◎</span> Students
       </button>
       <button class="nav-item" onclick="showSection('progress')" id="nav-progress">
-        <span class="nav-icon">📈</span> Progress
+        <span class="nav-icon">↗</span> Progress
       </button>
       <button class="nav-item" onclick="showSection('sessions')" id="nav-sessions">
-        <span class="nav-icon">🗂️</span> Sessions
+        <span class="nav-icon">◷</span> Sessions
       </button>
     </nav>
 
     <div class="sidebar-footer">
       <button class="nav-item btn-danger" onclick="handleLogout()">
-        <span class="nav-icon">🚪</span> Logout
+        <span class="nav-icon">⇥</span> Sign out
       </button>
     </div>
   </aside>
@@ -47,10 +48,18 @@
   <!-- ─── Main Content ──────────────────────────────────── -->
   <main class="main">
 
+    <div class="workspace-heading admin-heading">
+      <div>
+        <span class="eyebrow">STILL / ADMINISTRATION</span>
+        <h1>Learning, in <em>focus.</em></h1>
+      </div>
+      <div class="heading-date"><span class="status-dot"></span> LIVE PLATFORM OVERVIEW</div>
+    </div>
+
     <!-- ── ANALYTICS ────────────────────────────────────── -->
     <div id="section-analytics">
       <div class="section-header" style="margin-bottom: 20px;">
-        <h2>📊 Platform Analytics</h2>
+        <h2>Platform analytics</h2>
       </div>
 
       <!-- Stat Cards -->
@@ -75,7 +84,7 @@
 
       <!-- Popular Topics -->
       <div class="card">
-        <div class="card-title">🔥 Popular Topics</div>
+        <div class="card-title">Popular topics</div>
         <div id="popular-topics">
           <p style="color: var(--text-muted); font-size: 0.88rem;">Loading…</p>
         </div>
@@ -121,7 +130,7 @@
     <!-- ── STUDENTS ──────────────────────────────────────── -->
     <div id="section-students" style="display:none;">
       <div class="section-header">
-        <h2>👥 Student Accounts</h2>
+        <h2>Student accounts</h2>
         <span id="student-count" class="label"></span>
       </div>
 
@@ -147,7 +156,7 @@
     <!-- ── PROGRESS ──────────────────────────────────────── -->
     <div id="section-progress" style="display:none;">
       <div class="section-header">
-        <h2>📈 Student Progress</h2>
+        <h2>Student progress</h2>
       </div>
 
       <div class="card">
@@ -173,7 +182,7 @@
     <!-- ── SESSIONS ──────────────────────────────────────── -->
     <div id="section-sessions" style="display:none;">
       <div class="section-header">
-        <h2>🗂️ Tutoring Sessions</h2>
+        <h2>Tutoring sessions</h2>
       </div>
 
       <div id="sessions-list">

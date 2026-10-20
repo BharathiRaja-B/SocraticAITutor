@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Personal Tutor — Dashboard</title>
+  <title>Still — Your learning space</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,37 +15,33 @@
   <!-- ─── Sidebar ──────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-icon">🎓</div>
+      <div class="brand-icon">s.</div>
       <div>
-        <div class="brand-name">AI Tutor</div>
-        <div class="brand-sub">Personal Learning</div>
+        <div class="brand-name">still.</div>
+        <div class="brand-sub">A little more curious</div>
       </div>
     </div>
 
-    <!-- Dashboard Cards -->
-    <div id="dashboard-cards" class="grid-4" style="margin-bottom:16px;">
-      <!-- Cards will be injected here by JS -->
-    </div>
-
     <nav class="sidebar-nav">
+      <div class="nav-caption">YOUR LEARNING SPACE</div>
       <button class="nav-item active" onclick="showSection('chat')" id="nav-chat">
-        <span class="nav-icon">💬</span> AI Chat
+        <span class="nav-icon">✳</span> Tutor room
       </button>
       <button class="nav-item" onclick="showSection('progress')" id="nav-progress">
-        <span class="nav-icon">📊</span> My Progress
+        <span class="nav-icon">↗</span> My progress
       </button>
       <button class="nav-item" onclick="showSection('history')" id="nav-history">
-        <span class="nav-icon">📜</span> Chat History
+        <span class="nav-icon">◷</span> Past conversations
       </button>
       <button class="nav-item" onclick="showSection('summaries')" id="nav-summaries">
-        <span class="nav-icon">📝</span> Summaries
+        <span class="nav-icon">▤</span> Session notes
       </button>
     </nav>
 
     <div class="sidebar-footer">
-      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; padding: 0 8px;" id="sidebar-user"></div>
+      <div class="sidebar-user" id="sidebar-user"></div>
       <button class="nav-item btn-danger" onclick="handleLogout()">
-        <span class="nav-icon">🚪</span> Logout
+        <span class="nav-icon">⇥</span> Sign out
       </button>
     </div>
   </aside>
@@ -53,29 +49,39 @@
   <!-- ─── Main Content ──────────────────────────────────── -->
   <main class="main">
 
-    <!-- Welcome Banner -->
+    <div class="workspace-heading">
+      <div>
+        <span class="eyebrow">YOUR PERSONAL LEARNING SPACE</span>
+        <h1>A good day to get <em>curious.</em></h1>
+      </div>
+      <div class="heading-date"><span class="status-dot"></span> YOUR OWN PACE, ALWAYS</div>
+    </div>
+
     <div class="welcome-banner" id="welcome-banner">
       <div class="welcome-text">
-        <h2 id="welcome-name">Welcome back! 👋</h2>
-        <p>Ask me anything — I'll guide you to the answer using questions.</p>
+        <span class="eyebrow">PICK UP WHERE YOU LEFT OFF</span>
+        <h2 id="welcome-name">Welcome back!</h2>
+        <p>Bring a question. Leave with a new way of thinking.</p>
       </div>
-      <div class="welcome-icon">🧠</div>
+      <div class="welcome-art" aria-hidden="true"><span>?</span></div>
     </div>
 
     <!-- ── CHAT SECTION ──────────────────────────────────── -->
     <div id="section-chat">
 
+      <div class="learning-grid">
+        <div class="chat-column">
       <div class="chat-wrapper">
         <!-- Chat Header -->
         <div class="chat-header">
           <div class="chat-header-left">
-            <div class="chat-avatar">🤖</div>
+            <div class="chat-avatar">s.</div>
             <div>
-              <div class="chat-title">Socratic Tutor</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">Guides you to think, not just learn</div>
+              <div class="chat-title">Your thinking partner</div>
+              <div class="chat-subtitle"><span class="status-dot"></span> Here to help you work it out</div>
             </div>
           </div>
-          <span class="chat-topic-badge" id="current-topic-badge">No topic yet</span>
+          <span class="chat-topic-badge" id="current-topic-badge">A FRESH START</span>
         </div>
 
         <!-- Messages Area -->
@@ -87,35 +93,41 @@
             <textarea
               class="chat-input"
               id="chat-input"
-              placeholder="Ask a question or say what you want to learn…"
+              placeholder="What are you curious about today?"
               rows="1"
               onkeydown="handleChatKey(event)"
               oninput="autoResize(this)"
             ></textarea>
-            <button class="btn btn-primary" onclick="sendMessage()" id="send-btn">Send</button>
+            <button class="btn btn-primary" onclick="sendMessage()" id="send-btn">Send <span aria-hidden="true">↗</span></button>
           </div>
+          <div class="input-hint">ENTER TO SEND <span>·</span> SHIFT + ENTER FOR A NEW LINE</div>
         </div>
       </div>
-
-      <!-- Hint Panel -->
-      <div class="hint-panel" style="margin-top: 16px;">
-        <div class="card-title">💡 Need a Hint?</div>
-        <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 12px;">
-          Stuck on your last question? Request a hint — we'll give you just enough to keep going.
-        </p>
-        <div class="hint-buttons">
-          <button class="hint-btn" onclick="requestHint(1)">🌱 Level 1 — Concept</button>
-          <button class="hint-btn" onclick="requestHint(2)">🔧 Level 2 — Method</button>
-          <button class="hint-btn" onclick="requestHint(3)">📖 Level 3 — Detailed</button>
         </div>
-        <div class="hint-response" id="hint-response"></div>
-      </div>
 
-      <!-- End Session Button -->
-      <div style="margin-top: 14px; display: flex; gap: 10px;">
-        <button class="btn btn-ghost btn-sm" onclick="endSession()">
-          ✅ End Session & Save Summary
-        </button>
+        <aside class="study-rail">
+          <div class="rail-intro">
+            <span class="rail-symbol">✳</span>
+            <span class="eyebrow">A NOTE TO SELF</span>
+            <p>Learning isn't about knowing it all. It's about asking one more question.</p>
+          </div>
+          <div class="hint-panel">
+            <span class="eyebrow">WHEN YOU GET STUCK</span>
+            <div class="card-title">A nudge, not the answer.</div>
+            <p>Pick the kind of hint that feels right. You can always ask for a little more.</p>
+            <div class="hint-buttons">
+              <button class="hint-btn" onclick="requestHint(1)"><span>01</span> A concept</button>
+              <button class="hint-btn" onclick="requestHint(2)"><span>02</span> A method</button>
+              <button class="hint-btn" onclick="requestHint(3)"><span>03</span> More detail</button>
+            </div>
+            <div class="hint-response" id="hint-response"></div>
+          </div>
+          <div class="session-note">
+            <span class="eyebrow">WHEN YOU'RE READY</span>
+            <p>Wrap up and keep a note of what you've figured out.</p>
+            <button class="btn btn-ghost btn-sm" onclick="endSession()">Finish session <span>↗</span></button>
+          </div>
+        </aside>
       </div>
 
     </div>
@@ -123,8 +135,10 @@
     <!-- ── PROGRESS SECTION ──────────────────────────────── -->
     <div id="section-progress" style="display:none;">
       <div class="section-header">
-        <h2>📊 My Learning Progress</h2>
+        <h2>My learning progress</h2>
       </div>
+
+      <div id="dashboard-cards" class="overview-grid"></div>
 
       <div class="card" id="progress-container">
         <div class="empty-state">
@@ -137,7 +151,7 @@
     <!-- ── HISTORY SECTION ───────────────────────────────── -->
     <div id="section-history" style="display:none;">
       <div class="section-header">
-        <h2>📜 Chat History</h2>
+        <h2>Past conversations</h2>
       </div>
 
       <div class="card">
@@ -153,7 +167,7 @@
     <!-- ── SUMMARIES SECTION ─────────────────────────────── -->
     <div id="section-summaries" style="display:none;">
       <div class="section-header">
-        <h2>📝 Session Summaries</h2>
+        <h2>Session notes</h2>
       </div>
 
       <div id="summaries-container">
@@ -179,7 +193,7 @@
 
   const user = getUser();
   if (user) {
-    document.getElementById("welcome-name").textContent = `Welcome back, ${user.name}! 👋`;
+    document.getElementById("welcome-name").textContent = `Welcome back, ${user.name}.`;
     document.getElementById("sidebar-user").textContent = user.name;
   }
 
@@ -265,7 +279,7 @@
 
     const icon = document.createElement("div");
     icon.className = "msg-icon";
-    icon.textContent = role === "assistant" ? "🤖" : "👤";
+    icon.textContent = role === "assistant" ? "s." : "you";
 
     const bubble = document.createElement("div");
     bubble.className = "msg-bubble";
@@ -344,7 +358,7 @@
     typing.className = "message assistant";
     typing.id = "typing-indicator";
     typing.innerHTML = `
-      <div class="msg-icon">🤖</div>
+      <div class="msg-icon">s.</div>
       <div class="typing-indicator">
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
