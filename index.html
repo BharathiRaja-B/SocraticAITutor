@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Personal Tutor — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="auth-logo">🎓</div>
+      <h1>AI Personal Tutor</h1>
+      <p>Learn smarter with Socratic guidance</p>
+    </div>
+
+    <!-- Alert banner for errors -->
+    <div id="alert" class="alert alert-error"></div>
+
+    <!-- Login Form -->
+    <div id="login-section">
+      <div class="form-group">
+        <label class="form-label" for="login-email">Email Address</label>
+        <input class="form-input" type="email" id="login-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input class="form-input" type="password" id="login-password" placeholder="Your password" />
+      </div>
+      <button class="btn btn-primary btn-full" id="login-btn" onclick="handleLogin()">
+        Sign In
+      </button>
+      <p style="text-align:center; margin-top:20px; color: var(--text-secondary); font-size: 0.88rem;">
+        Don't have an account?
+        <a href="#" onclick="toggleSection('register')">Create one</a>
+      </p>
+      <p style="text-align:center; margin-top:8px; font-size: 0.82rem; color: var(--text-muted);">
+        Admin? <a href="#" onclick="toggleSection('admin')">Admin login</a>
+      </p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-section" style="display:none;">
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Full Name</label>
+        <input class="form-input" type="text" id="reg-name" placeholder="Your name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email Address</label>
+        <input class="form-input" type="email" id="reg-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password</label>
+        <input class="form-input" type="password" id="reg-password" placeholder="At least 6 characters" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleRegister()">
+        Create Account
+      </button>
+      <p style="text-align:center; margin-top:20px; color: var(--text-secondary); font-size: 0.88rem;">
+        Already have an account?
+        <a href="#" onclick="toggleSection('login')">Sign in</a>
+      </p>
+    </div>
+
+    <!-- Admin Login Form -->
+    <div id="admin-section" style="display:none;">
+      <div style="text-align:center; margin-bottom:16px;">
+        <span style="font-size:1.5rem;">🛡️</span>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top:4px;">Admin access only</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="admin-email">Admin Email</label>
+        <input class="form-input" type="email" id="admin-email" placeholder="admin@tutor.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="admin-password">Password</label>
+        <input class="form-input" type="password" id="admin-password" placeholder="Admin password" />
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleAdminLogin()">
+        Admin Sign In
+      </button>
+      <p style="text-align:center; margin-top:20px; color: var(--text-secondary); font-size: 0.88rem;">
+        <a href="#" onclick="toggleSection('login')">← Back to student login</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // If already logged in, redirect appropriately
+  const existingUser = getUser();
+  if (existingUser && getToken()) {
+    if (existingUser.role === "admin") {
+      window.location.href = "admin.html";
+    } else {
+      window.location.href = "dashboard.html";
+    }
+  }
+
+  // Switch between login, register, and admin forms
+  function toggleSection(name) {
+    hideAlert("alert");
+    document.getElementById("login-section").style.display    = name === "login"    ? "block" : "none";
+    document.getElementById("register-section").style.display = name === "register" ? "block" : "none";
+    document.getElementById("admin-section").style.display    = name === "admin"    ? "block" : "none";
+  }
+
+  async function handleLogin() {
+    hideAlert("alert");
+    const email    = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    if (!email || !password) return showAlert("alert", "Please enter your email and password.");
+
+    const btn = document.getElementById("login-btn");
+    btn.textContent = "Signing in…";
+    btn.disabled = true;
+
+    try {
+      const data = await api("/login", "POST", { email, password });
+      saveAuth(data.token, data.user);
+      // Redirect based on role
+      window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
+    } catch (err) {
+      showAlert("alert", err.message);
+      btn.textContent = "Sign In";
+      btn.disabled = false;
+    }
+  }
+
+  async function handleRegister() {
+    hideAlert("alert");
+    const name     = document.getElementById("reg-name").value.trim();
+    const email    = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value;
+    if (!name || !email || !password) return showAlert("alert", "All fields are required.");
+
+    try {
+      await api("/register", "POST", { name, email, password });
+      showAlert("alert", "Account created! Please sign in.", "success");
+      toggleSection("login");
+      document.getElementById("login-email").value = email;
+    } catch (err) {
+      showAlert("alert", err.message);
+    }
+  }
+
+  async function handleAdminLogin() {
+    hideAlert("alert");
+    const email    = document.getElementById("admin-email").value.trim();
+    const password = document.getElementById("admin-password").value;
+    if (!email || !password) return showAlert("alert", "Please enter admin credentials.");
+
+    try {
+      const data = await api("/login", "POST", { email, password });
+      if (data.user.role !== "admin") {
+        return showAlert("alert", "This account does not have admin access.");
+      }
+      saveAuth(data.token, data.user);
+      window.location.href = "admin.html";
+    } catch (err) {
+      showAlert("alert", err.message);
+    }
+  }
+
+  // Allow pressing Enter to submit
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    if (document.getElementById("login-section").style.display !== "none") handleLogin();
+    else if (document.getElementById("register-section").style.display !== "none") handleRegister();
+    else if (document.getElementById("admin-section").style.display !== "none") handleAdminLogin();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Personal Tutor — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ─── Sidebar ──────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <div class="brand-name">Admin Panel</div>
+        <div class="brand-sub">AI Personal Tutor</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showSection('analytics')" id="nav-analytics">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item" onclick="showSection('students')" id="nav-students">
+        <span class="nav-icon">👥</span> Students
+      </button>
+      <button class="nav-item" onclick="showSection('progress')" id="nav-progress">
+        <span class="nav-icon">📈</span> Progress
+      </button>
+      <button class="nav-item" onclick="showSection('sessions')" id="nav-sessions">
+        <span class="nav-icon">🗂️</span> Sessions
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item btn-danger" onclick="handleLogout()">
+        <span class="nav-icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────────── -->
+  <main class="main">
+
+    <!-- ── ANALYTICS ────────────────────────────────────── -->
+    <div id="section-analytics">
+      <div class="section-header" style="margin-bottom: 20px;">
+        <h2>📊 Platform Analytics</h2>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid-4" style="margin-bottom: 24px;" id="stat-cards">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-students">—</div>
+          <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-sessions">—</div>
+          <div class="stat-label">Sessions Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-questions">—</div>
+          <div class="stat-label">Questions Asked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-avg-progress">—</div>
+          <div class="stat-label">Avg Progress %</div>
+        </div>
+      </div>
+
+      <!-- Popular Topics -->
+      <div class="card">
+        <div class="card-title">🔥 Popular Topics</div>
+        <div id="popular-topics">
+          <p style="color: var(--text-muted); font-size: 0.88rem;">Loading…</p>
+        </div>
+      </div>
+
+      <!-- Extended Admin Metrics -->
+      <div class="grid-3" style="margin-top:18px; gap:12px;">
+        <div class="card" id="difficult-topics-card">
+          <div class="card-title">Most Difficult Topics</div>
+          <div id="difficult-topics">Loading…</div>
+        </div>
+        <div class="card" id="top-students-card">
+          <div class="card-title">Top Performing Students</div>
+          <div id="top-students">Loading…</div>
+        </div>
+        <div class="card" id="weak-dist-card">
+          <div class="card-title">Weak Topic Distribution</div>
+          <div id="weak-dist">Loading…</div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:12px; gap:12px;">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-avg-mastery">—</div>
+          <div class="stat-label">Average Mastery</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-avg-hints">—</div>
+          <div class="stat-label">Avg Hint Usage</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-sessions-per-day">—</div>
+          <div class="stat-label">Sessions / Day (avg)</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">Most Studied Topics</div>
+        <div id="most-studied">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS ──────────────────────────────────────── -->
+    <div id="section-students" style="display:none;">
+      <div class="section-header">
+        <h2>👥 Student Accounts</h2>
+        <span id="student-count" class="label"></span>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="students-table">
+              <tr><td colspan="4" style="color: var(--text-muted); text-align: center; padding: 24px;">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROGRESS ──────────────────────────────────────── -->
+    <div id="section-progress" style="display:none;">
+      <div class="section-header">
+        <h2>📈 Student Progress</h2>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Email</th>
+                <th>Topic</th>
+                <th>Progress</th>
+                <th>Hints Used</th>
+              </tr>
+            </thead>
+            <tbody id="progress-table">
+              <tr><td colspan="5" style="color: var(--text-muted); text-align: center; padding: 24px;">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SESSIONS ──────────────────────────────────────── -->
+    <div id="section-sessions" style="display:none;">
+      <div class="section-header">
+        <h2>🗂️ Tutoring Sessions</h2>
+      </div>
+
+      <div id="sessions-list">
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Loading…</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // ─── Auth Guard ────────────────────────────────────────────────────────────
+  if (!requireAuth("admin")) { /* redirected */ }
+
+  // Load analytics on page open
+  loadAnalytics();
+
+  // ─── Section Navigation ────────────────────────────────────────────────────
+  function showSection(name) {
+    ["analytics", "students", "progress", "sessions"].forEach(s => {
+      document.getElementById(`section-${s}`).style.display = (s === name) ? "block" : "none";
+      document.getElementById(`nav-${s}`).classList.toggle("active", s === name);
+    });
+
+    if (name === "analytics") loadAnalytics();
+    if (name === "students")  loadStudents();
+    if (name === "progress")  loadProgress();
+    if (name === "sessions")  loadSessions();
+  }
+
+  // ─── Analytics ────────────────────────────────────────────────────────────
+  async function loadAnalytics() {
+    try {
+      const data = await api('/admin/stats');
+
+      // Basic stats
+      document.getElementById("stat-students").textContent     = data.learning_statistics.total_students;
+      document.getElementById("stat-sessions").textContent     = data.learning_statistics.total_sessions;
+      document.getElementById("stat-questions").textContent    = data.learning_statistics.total_questions;
+      document.getElementById("stat-avg-progress").textContent = `${data.avg_mastery}%`;
+
+      // Avg mastery and hints
+      document.getElementById('stat-avg-mastery').textContent = `${data.avg_mastery}%`;
+      document.getElementById('stat-avg-hints').textContent = `${data.avg_hint_usage}`;
+
+      // Sessions per day average (simple mean)
+      const sessCounts = data.sessions_per_day.map(r => r.count);
+      const avgPerDay = sessCounts.length ? (sessCounts.reduce((a,b)=>a+b,0)/sessCounts.length).toFixed(1) : '0';
+      document.getElementById('stat-sessions-per-day').textContent = avgPerDay;
+
+      // Most difficult topics
+      const diffEl = document.getElementById('difficult-topics');
+      diffEl.innerHTML = data.most_difficult_topics.length ? data.most_difficult_topics.map(t => `
+        <div style="margin-bottom:8px;">
+          <div style="font-weight:700;">${escapeHtml(t.topic)}</div>
+          <div style="color:var(--text-muted); font-size:0.85rem;">Avg progress: ${Math.round(t.avg_progress)}% — ${t.users} users</div>
+        </div>
+      `).join('') : '<div style="color:var(--text-muted)">No data</div>';
+
+      // Top performing students
+      const topEl = document.getElementById('top-students');
+      topEl.innerHTML = data.top_performing_students.length ? `<ol style="padding-left:18px; margin:0;">${data.top_performing_students.map(s => `<li style="margin-bottom:8px;"><strong>${escapeHtml(s.name)}</strong> — ${Math.round(s.avg_progress)}%</li>`).join('')}</ol>` : '<div style="color:var(--text-muted)">No data</div>';
+
+      // Weak topic distribution (simple list)
+      const weakEl = document.getElementById('weak-dist');
+      weakEl.innerHTML = data.weak_topic_distribution.length ? data.weak_topic_distribution.map(w => `
+        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:6px;">
+          <div style="color:var(--text-primary);">${escapeHtml(w.topic)}</div>
+          <div style="color:var(--text-muted);">${w.count}</div>
+        </div>
+      `).join('') : '<div style="color:var(--text-muted)">No weak topics</div>';
+
+      // Most studied topics
+      const msEl = document.getElementById('most-studied');
+      msEl.innerHTML = data.most_studied_topics.length ? data.most_studied_topics.map(t => `
+        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:6px;">
+          <div style="color:var(--text-primary);">${escapeHtml(t.topic)}</div>
+          <div style="color:var(--accent-bright);">${t.users}</div>
+        </div>
+      `).join('') : '<div style="color:var(--text-muted)">No data</div>';
+
+    } catch (err) {
+      showToast('Failed to load analytics: ' + err.message, 'error');
+    }
+  }
+
+  // ─── Students ─────────────────────────────────────────────────────────────
+  async function loadStudents() {
+    const tbody = document.getElementById("students-table");
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:24px;">Loading…</td></tr>`;
+
+    try {
+      const data = await api("/admin/users");
+      document.getElementById("student-count").textContent = `${data.users.length} total`;
+
+      if (!data.users.length) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text-muted);text-align:center;padding:24px;">No students yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.users.map((u, i) => `
+        <tr>
+          <td style="color: var(--text-muted);">${i + 1}</td>
+          <td style="font-weight: 600;">${escapeHtml(u.name)}</td>
+          <td style="color: var(--text-secondary);">${escapeHtml(u.email)}</td>
+          <td style="color: var(--text-muted);">${formatDate(u.created_at)}</td>
+        </tr>
+      `).join("");
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger);">Error: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  // ─── Progress ─────────────────────────────────────────────────────────────
+  async function loadProgress() {
+    const tbody = document.getElementById("progress-table");
+    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px;">Loading…</td></tr>`;
+
+    try {
+      const data = await api("/admin/progress");
+
+      if (!data.progress.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);text-align:center;padding:24px;">No progress data yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.progress.map(p => `
+        <tr>
+          <td style="font-weight: 600;">${escapeHtml(p.name)}</td>
+          <td style="color: var(--text-secondary);">${escapeHtml(p.email)}</td>
+          <td><span style="
+            font-size: 0.78rem; font-weight: 700;
+            background: var(--accent-dim); color: var(--accent-bright);
+            padding: 2px 8px; border-radius: 999px;
+          ">${escapeHtml(p.topic)}</span></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="
+                flex: 1; height: 5px; background: var(--bg-input);
+                border-radius: 999px; overflow: hidden; min-width: 60px;
+              ">
+                <div style="
+                  height: 100%;
+                  width: ${p.progress}%;
+                  background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+                  border-radius: 999px;
+                "></div>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--accent-bright); font-weight: 700; white-space: nowrap;">
+                ${p.progress}%
+              </span>
+            </div>
+          </td>
+          <td style="color: var(--text-secondary);">${p.hints_used}</td>
+        </tr>
+      `).join("");
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger);">Error: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  // ─── Sessions ─────────────────────────────────────────────────────────────
+  async function loadSessions() {
+    const container = document.getElementById("sessions-list");
+    container.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">Loading…</p>`;
+
+    try {
+      const data = await api("/admin/sessions");
+
+      if (!data.sessions.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🗂️</div>
+            <p>No sessions completed yet.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = data.sessions.map(s => `
+        <div class="summary-card">
+          <div class="summary-meta">
+            <span class="summary-topic">${escapeHtml(s.topic)}</span>
+            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.85rem;">${escapeHtml(s.name)}</span>
+            <span class="summary-date">${formatDate(s.created_at)}</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">💡 ${s.hints_used} hints</span>
+          </div>
+          ${s.summary ? `
+            <div class="summary-body" style="max-height: 80px; overflow: hidden; position: relative;">
+              ${escapeHtml(s.summary)}
+            </div>
+          ` : ""}
+        </div>
+      `).join("");
+    } catch (err) {
+      container.innerHTML = `<p style="color: var(--danger);">Error: ${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  // ─── Logout ───────────────────────────────────────────────────────────────
+  function handleLogout() {
+    clearAuth();
+    window.location.href = "index.html";
+  }
+</script>
+</body>
+</html>

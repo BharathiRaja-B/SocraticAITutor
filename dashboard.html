@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Personal Tutor — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ─── Sidebar ──────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div>
+        <div class="brand-name">AI Tutor</div>
+        <div class="brand-sub">Personal Learning</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div id="dashboard-cards" class="grid-4" style="margin-bottom:16px;">
+      <!-- Cards will be injected here by JS -->
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showSection('chat')" id="nav-chat">
+        <span class="nav-icon">💬</span> AI Chat
+      </button>
+      <button class="nav-item" onclick="showSection('progress')" id="nav-progress">
+        <span class="nav-icon">📊</span> My Progress
+      </button>
+      <button class="nav-item" onclick="showSection('history')" id="nav-history">
+        <span class="nav-icon">📜</span> Chat History
+      </button>
+      <button class="nav-item" onclick="showSection('summaries')" id="nav-summaries">
+        <span class="nav-icon">📝</span> Summaries
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; padding: 0 8px;" id="sidebar-user"></div>
+      <button class="nav-item btn-danger" onclick="handleLogout()">
+        <span class="nav-icon">🚪</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Welcome Banner -->
+    <div class="welcome-banner" id="welcome-banner">
+      <div class="welcome-text">
+        <h2 id="welcome-name">Welcome back! 👋</h2>
+        <p>Ask me anything — I'll guide you to the answer using questions.</p>
+      </div>
+      <div class="welcome-icon">🧠</div>
+    </div>
+
+    <!-- ── CHAT SECTION ──────────────────────────────────── -->
+    <div id="section-chat">
+
+      <div class="chat-wrapper">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <div class="chat-avatar">🤖</div>
+            <div>
+              <div class="chat-title">Socratic Tutor</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Guides you to think, not just learn</div>
+            </div>
+          </div>
+          <span class="chat-topic-badge" id="current-topic-badge">No topic yet</span>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chat-messages" id="chat-messages"></div>
+
+        <!-- Chat Input -->
+        <div class="chat-footer">
+          <div class="chat-input-row">
+            <textarea
+              class="chat-input"
+              id="chat-input"
+              placeholder="Ask a question or say what you want to learn…"
+              rows="1"
+              onkeydown="handleChatKey(event)"
+              oninput="autoResize(this)"
+            ></textarea>
+            <button class="btn btn-primary" onclick="sendMessage()" id="send-btn">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hint Panel -->
+      <div class="hint-panel" style="margin-top: 16px;">
+        <div class="card-title">💡 Need a Hint?</div>
+        <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 12px;">
+          Stuck on your last question? Request a hint — we'll give you just enough to keep going.
+        </p>
+        <div class="hint-buttons">
+          <button class="hint-btn" onclick="requestHint(1)">🌱 Level 1 — Concept</button>
+          <button class="hint-btn" onclick="requestHint(2)">🔧 Level 2 — Method</button>
+          <button class="hint-btn" onclick="requestHint(3)">📖 Level 3 — Detailed</button>
+        </div>
+        <div class="hint-response" id="hint-response"></div>
+      </div>
+
+      <!-- End Session Button -->
+      <div style="margin-top: 14px; display: flex; gap: 10px;">
+        <button class="btn btn-ghost btn-sm" onclick="endSession()">
+          ✅ End Session & Save Summary
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── PROGRESS SECTION ──────────────────────────────── -->
+    <div id="section-progress" style="display:none;">
+      <div class="section-header">
+        <h2>📊 My Learning Progress</h2>
+      </div>
+
+      <div class="card" id="progress-container">
+        <div class="empty-state">
+          <div class="empty-icon">📚</div>
+          <p>Start chatting with the tutor to begin tracking your progress!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY SECTION ───────────────────────────────── -->
+    <div id="section-history" style="display:none;">
+      <div class="section-header">
+        <h2>📜 Chat History</h2>
+      </div>
+
+      <div class="card">
+        <div id="history-container">
+          <div class="empty-state">
+            <div class="empty-icon">💬</div>
+            <p>Your conversation history will appear here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SUMMARIES SECTION ─────────────────────────────── -->
+    <div id="section-summaries" style="display:none;">
+      <div class="section-header">
+        <h2>📝 Session Summaries</h2>
+      </div>
+
+      <div id="summaries-container">
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <p>Complete a session to generate an AI summary of what you learned.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // ─── State ────────────────────────────────────────────────────────────────
+  let currentTopic   = "";     // detected topic from last AI response
+  let lastUserMsg    = "";     // stored for hint requests
+  let isLoading      = false;  // prevent double sends
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  if (!requireAuth("student")) { /* redirected */ }
+
+  const user = getUser();
+  if (user) {
+    document.getElementById("welcome-name").textContent = `Welcome back, ${user.name}! 👋`;
+    document.getElementById("sidebar-user").textContent = user.name;
+  }
+
+  // Load existing conversation into the chat section
+  loadChatMessages();
+  // Load dashboard overview cards
+  loadDashboardOverview();
+
+  // ─── Section Navigation ───────────────────────────────────────────────────
+  function showSection(name) {
+    ["chat", "progress", "history", "summaries"].forEach(s => {
+      document.getElementById(`section-${s}`).style.display = (s === name) ? "block" : "none";
+      document.getElementById(`nav-${s}`).classList.toggle("active", s === name);
+    });
+
+    // Load data when switching sections
+    if (name === "progress")   loadProgress();
+    if (name === "history")    loadHistory();
+    if (name === "summaries")  loadSummaries();
+  }
+
+  // ─── Chat ─────────────────────────────────────────────────────────────────
+  function autoResize(textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = Math.min(textarea.scrollHeight, 100) + "px";
+  }
+
+  function handleChatKey(e) {
+    // Send on Enter (without Shift)
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("chat-input");
+    const message = input.value.trim();
+    if (!message || isLoading) return;
+
+    lastUserMsg = message;   // store for hint requests
+    input.value = "";
+    input.style.height = "auto";
+
+    // Append user message to chat
+    appendMessage("user", message);
+    saveMessageToChatCache("user", message);
+
+    // Show typing indicator
+    isLoading = true;
+    const sendBtn = document.getElementById("send-btn");
+    sendBtn.disabled = true;
+    sendBtn.textContent = "…";
+    showTyping();
+
+    try {
+      const data = await api("/chat", "POST", { message });
+
+      removeTyping();
+      appendMessage("assistant", data.response);
+      saveMessageToChatCache("assistant", data.response);
+
+      // Update topic badge if detected
+      if (data.topic && data.topic !== "General") {
+        currentTopic = data.topic;
+        document.getElementById("current-topic-badge").textContent = `📘 ${data.topic}`;
+      }
+    } catch (err) {
+      removeTyping();
+      appendMessage("assistant", `⚠️ Error: ${err.message}`);
+    } finally {
+      isLoading = false;
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+    }
+  }
+
+  function appendMessage(role, text) {
+    const container = document.getElementById("chat-messages");
+
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${role}`;
+
+    const icon = document.createElement("div");
+    icon.className = "msg-icon";
+    icon.textContent = role === "assistant" ? "🤖" : "👤";
+
+    const bubble = document.createElement("div");
+    bubble.className = "msg-bubble";
+    // Convert newlines to <br> and bold **text** for readability
+    bubble.innerHTML = escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n/g, "<br>");
+
+    msgDiv.appendChild(icon);
+    msgDiv.appendChild(bubble);
+    container.appendChild(msgDiv);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function getChatStorageKey() {
+    const user = getUser();
+    return user ? `chat-session-${user.id}` : "chat-session-guest";
+  }
+
+  function loadChatMessages() {
+    const container = document.getElementById("chat-messages");
+    container.innerHTML = "";
+
+    const key = getChatStorageKey();
+    let chatMessages = [];
+    const savedText = localStorage.getItem(key);
+
+    if (savedText) {
+      try {
+        chatMessages = JSON.parse(savedText);
+      } catch (err) {
+        console.warn("Clearing invalid chat cache", err);
+        localStorage.removeItem(key);
+        chatMessages = [];
+      }
+    }
+
+    if (chatMessages.length) {
+      chatMessages.forEach(msg => appendMessage(msg.role, msg.text));
+      return;
+    }
+
+    appendMessage("assistant",
+      "Hello! I'm your Socratic AI Tutor. Instead of handing you answers, I'll help you discover them through guided questions.\n\nWhat would you like to learn today? You can ask me about Python, JavaScript, SQL, Data Structures, Math, or any other topic! 🚀"
+    );
+  }
+
+  function saveMessageToChatCache(role, text) {
+    const key = getChatStorageKey();
+    const savedText = localStorage.getItem(key);
+    let chatMessages = [];
+
+    if (savedText) {
+      try {
+        chatMessages = JSON.parse(savedText);
+      } catch (err) {
+        console.warn("Resetting invalid chat cache", err);
+        chatMessages = [];
+      }
+    }
+
+    chatMessages.push({ role, text });
+    localStorage.setItem(key, JSON.stringify(chatMessages));
+  }
+
+  function clearChatCache() {
+    const container = document.getElementById("chat-messages");
+    container.innerHTML = "";
+    const key = getChatStorageKey();
+    localStorage.removeItem(key);
+  }
+
+  function showTyping() {
+    const container = document.getElementById("chat-messages");
+    const typing = document.createElement("div");
+    typing.className = "message assistant";
+    typing.id = "typing-indicator";
+    typing.innerHTML = `
+      <div class="msg-icon">🤖</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>`;
+    container.appendChild(typing);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function removeTyping() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.remove();
+  }
+
+  // ─── Hints ────────────────────────────────────────────────────────────────
+  async function requestHint(level) {
+    const question = lastUserMsg || "my last question";
+    const responseEl = document.getElementById("hint-response");
+
+    responseEl.style.display = "block";
+    responseEl.textContent = "Generating hint…";
+
+    try {
+      const data = await api("/hint", "POST", {
+        question,
+        hint_level: level,
+      });
+
+      const levelNames = { 1: "🌱 Concept Hint", 2: "🔧 Method Hint", 3: "📖 Detailed Hint" };
+      responseEl.innerHTML = `<strong>${levelNames[level]}:</strong> ${escapeHtml(data.hint).replace(/\n/g, "<br>")}`;
+    } catch (err) {
+      responseEl.textContent = `⚠️ ${err.message}`;
+    }
+  }
+
+  // ─── End Session ──────────────────────────────────────────────────────────
+  async function endSession() {
+    if (!confirm("End this session and generate a summary of what you learned?")) return;
+
+    showToast("Generating session summary…", "info");
+
+    try {
+      const data = await api("/summary/generate", "POST", { topic: currentTopic });
+      showToast("Session summary saved!", "success");
+
+      // Show the summary inline
+      appendMessage("assistant",
+        `📝 **Session Summary**\n\n${data.summary}\n\nGreat work today! Start a new question whenever you're ready. 🎉`
+      );
+
+      // Clear the persisted chat cache when the session ends
+      clearChatCache();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  // ─── Progress ─────────────────────────────────────────────────────────────
+  async function loadProgress() {
+    const container = document.getElementById("progress-container");
+    container.innerHTML = "<p style='color:var(--text-muted); font-size:0.88rem;'>Loading…</p>";
+
+    try {
+      const data = await api("/progress");
+      if (!data.progress.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <p>Start chatting to track your learning progress!</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = data.progress.map(item => `
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-topic">${escapeHtml(item.topic)}</span>
+            <span class="progress-pct">${item.progress}%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width: ${item.progress}%"></div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+            ${item.hints_used} hint${item.hints_used !== 1 ? "s" : ""} used
+          </div>
+        </div>
+      `).join("");
+    } catch (err) {
+      container.innerHTML = `<p style="color: var(--danger); font-size: 0.88rem;">Failed to load progress: ${err.message}</p>`;
+    }
+  }
+
+  // ─── Dashboard Overview ──────────────────────────────────────────────────
+  async function loadDashboardOverview() {
+    const container = document.getElementById('dashboard-cards');
+    container.innerHTML = '';
+    try {
+      const data = await api('/dashboard/overview');
+
+      const makeCard = (label, value, small) => `
+        <div class="stat-card">
+          <div class="stat-value">${escapeHtml(String(value))}</div>
+          <div class="stat-label">${escapeHtml(label)}</div>
+        </div>`;
+
+      // Top-level stats
+      const cards = [];
+      cards.push(makeCard('Current Topic', data.current_topic || 'General'));
+      cards.push(makeCard('Mastery Score', (data.mastery_score || 0) + '%'));
+      cards.push(makeCard('Learning Progress', (data.learning_progress || 0) + '%'));
+      cards.push(makeCard('Learning Streak', data.learning_streak || 0));
+      cards.push(makeCard('Hints Used', data.hints_used || 0));
+      cards.push(makeCard('Sessions Completed', data.sessions_completed || 0));
+      cards.push(makeCard('Recommended Next', data.recommended_next || '—'));
+
+      container.innerHTML = cards.join('');
+
+      // Weak & Strong topics lists appended below cards
+      const extra = document.createElement('div');
+      extra.style.gridColumn = '1 / -1';
+      extra.innerHTML = `
+        <div class="card">
+          <div class="card-title">Weak Topics</div>
+          <div id="weak-list">${data.weak_topics.length ? data.weak_topics.map(w => `<div style="margin-bottom:8px;"><strong>${escapeHtml(w.topic)}</strong> — ${escapeHtml(w.reason)}</div>`).join('') : '<div style="color:var(--text-muted)">None</div>'}</div>
+        </div>
+        <div class="card" style="margin-top:10px;">
+          <div class="card-title">Strong Topics</div>
+          <div id="strong-list">${data.strong_topics.length ? data.strong_topics.map(s => `<div style="margin-bottom:8px;"><strong>${escapeHtml(s.topic)}</strong> — ${s.progress}%</div>`).join('') : '<div style="color:var(--text-muted)">None</div>'}</div>
+        </div>
+      `;
+      container.appendChild(extra);
+
+      // Roadmap summary area
+      const roadmapCard = document.createElement('div');
+      roadmapCard.className = 'card';
+      roadmapCard.style.gridColumn = '1 / -1';
+      roadmapCard.innerHTML = `
+        <div class="card-title">Learning Roadmap — ${escapeHtml(data.learning_roadmap.name)}</div>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="flex:1;">
+            <div style="font-weight:700;">Current Stage: ${escapeHtml(data.current_stage || '—')}</div>
+            <div style="color:var(--text-muted); margin-top:6px;">Completed: ${escapeHtml(String(data.learning_roadmap.status.completed_topics.length || 0))} / ${escapeHtml(String(data.learning_roadmap.status.all_topics.length || 0))} — ${data.learning_roadmap.status.progress_percent}%</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;">Next: ${escapeHtml(data.recommended_next || '—')}</div>
+          </div>
+        </div>`;
+
+      container.appendChild(roadmapCard);
+
+    } catch (err) {
+      container.innerHTML = `<div class="card"><div style="color:var(--danger)">Failed to load dashboard: ${escapeHtml(err.message)}</div></div>`;
+    }
+  }
+
+  // ─── History ──────────────────────────────────────────────────────────────
+  async function loadHistory() {
+    const container = document.getElementById("history-container");
+    container.innerHTML = "<p style='color:var(--text-muted); font-size:0.88rem;'>Loading…</p>";
+
+    try {
+      const data = await api("/history");
+      if (!data.history.length) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><p>No chat history yet.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = data.history.map(msg => `
+        <div style="
+          display: flex;
+          gap: 12px;
+          padding: 10px 0;
+          border-bottom: 1px solid var(--border);
+          ${msg.role === 'user' ? 'flex-direction: row-reverse;' : ''}
+        ">
+          <div style="
+            width: 26px; height: 26px; border-radius: 50%;
+            background: ${msg.role === 'assistant' ? 'linear-gradient(135deg, var(--accent), #b06ef7)' : 'var(--bg-input)'};
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; flex-shrink: 0;
+          ">${msg.role === 'assistant' ? '🤖' : '👤'}</div>
+          <div style="flex: 1;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 3px;">
+              ${msg.role === 'assistant' ? 'AI Tutor' : 'You'} · ${formatDateTime(msg.timestamp)}
+            </div>
+            <div style="font-size: 0.87rem; color: var(--text-primary); line-height: 1.5;">
+              ${escapeHtml(msg.message).replace(/\n/g, '<br>')}
+            </div>
+          </div>
+        </div>
+      `).join("");
+    } catch (err) {
+      container.innerHTML = `<p style="color: var(--danger);">Failed to load history: ${err.message}</p>`;
+    }
+  }
+
+  // ─── Summaries ────────────────────────────────────────────────────────────
+  async function loadSummaries() {
+    const container = document.getElementById("summaries-container");
+    container.innerHTML = "<p style='color:var(--text-muted); font-size:0.88rem; padding:8px 0;'>Loading…</p>";
+
+    try {
+      const data = await api("/summary");
+      if (!data.summaries.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <p>Complete a session to generate your first summary!</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = data.summaries.map(s => `
+        <div class="summary-card">
+          <div class="summary-meta">
+            <span class="summary-topic">${escapeHtml(s.topic)}</span>
+            <span class="summary-date">${formatDate(s.created_at)}</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">💡 ${s.hints_used} hints used</span>
+          </div>
+          <div class="summary-body">${escapeHtml(s.summary || "No summary available.")}</div>
+        </div>
+      `).join("");
+    } catch (err) {
+      container.innerHTML = `<p style="color: var(--danger);">Failed to load summaries: ${err.message}</p>`;
+    }
+  }
+
+  // ─── Logout ───────────────────────────────────────────────────────────────
+  function handleLogout() {
+    clearAuth();
+    window.location.href = "index.html";
+  }
+</script>
+</body>
+</html>
