@@ -30,6 +30,12 @@
       <button class="nav-item" onclick="showSection('progress')" id="nav-progress">
         <span class="nav-icon">↗</span> My progress
       </button>
+      <button class="nav-item" onclick="showSection('roadmap')" id="nav-roadmap">
+        <span class="nav-icon">⌁</span> Learning path
+      </button>
+      <button class="nav-item" onclick="showSection('practice')" id="nav-practice">
+        <span class="nav-icon">✎</span> Practice
+      </button>
       <button class="nav-item" onclick="showSection('history')" id="nav-history">
         <span class="nav-icon">◷</span> Past conversations
       </button>
@@ -108,19 +114,8 @@
         <aside class="study-rail">
           <div class="rail-intro">
             <span class="rail-symbol">✳</span>
-            <span class="eyebrow">A NOTE TO SELF</span>
-            <p>Learning isn't about knowing it all. It's about asking one more question.</p>
-          </div>
-          <div class="hint-panel">
-            <span class="eyebrow">WHEN YOU GET STUCK</span>
-            <div class="card-title">A nudge, not the answer.</div>
-            <p>Pick the kind of hint that feels right. You can always ask for a little more.</p>
-            <div class="hint-buttons">
-              <button class="hint-btn" onclick="requestHint(1)"><span>01</span> A concept</button>
-              <button class="hint-btn" onclick="requestHint(2)"><span>02</span> A method</button>
-              <button class="hint-btn" onclick="requestHint(3)"><span>03</span> More detail</button>
-            </div>
-            <div class="hint-response" id="hint-response"></div>
+            <span class="eyebrow">LEARNING, YOUR WAY</span>
+            <p>Real understanding grows when you put an idea into your own words.</p>
           </div>
           <div class="session-note">
             <span class="eyebrow">WHEN YOU'RE READY</span>
@@ -145,6 +140,54 @@
           <div class="empty-icon">📚</div>
           <p>Start chatting with the tutor to begin tracking your progress!</p>
         </div>
+      </div>
+    </div>
+
+    <!-- ── LEARNING PATH SECTION ─────────────────────────── -->
+    <div id="section-roadmap" style="display:none;">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">SMALL STEPS, REAL PROGRESS</span>
+          <h2>Your learning path</h2>
+        </div>
+        <label class="roadmap-select-label" for="roadmap-select">Choose a path
+          <select class="form-input roadmap-select" id="roadmap-select" onchange="loadRoadmap()">
+            <option value="React">React</option>
+            <option value="Python">Python</option>
+          </select>
+        </label>
+      </div>
+      <div class="roadmap-overview card" id="roadmap-overview">Loading your learning path…</div>
+      <div class="roadmap-list" id="roadmap-list"></div>
+    </div>
+
+    <!-- ── PRACTICE SECTION ──────────────────────────────── -->
+    <div id="section-practice" style="display:none;">
+      <div class="section-header">
+        <div>
+          <span class="eyebrow">MAKE THE IDEA YOURS</span>
+          <h2>Explain it back</h2>
+        </div>
+      </div>
+      <div class="practice-layout">
+        <form class="card practice-form" id="practice-form" onsubmit="submitPractice(event)">
+          <p class="practice-intro">Choose a question and explain what you understand. Your tutor will offer thoughtful feedback to help you grow.</p>
+          <label class="form-label" for="practice-topic">Topic <span>(optional)</span></label>
+          <input class="form-input" id="practice-topic" type="text" placeholder="e.g. Python loops" />
+          <label class="form-label" for="practice-question">What question are you answering?</label>
+          <textarea class="form-input practice-textarea" id="practice-question" rows="3" required placeholder="Write a question about something you're learning…"></textarea>
+          <label class="form-label" for="practice-answer">Explain it in your own words</label>
+          <textarea class="form-input practice-textarea" id="practice-answer" rows="5" required placeholder="Take your time. What do you understand so far?"></textarea>
+          <button class="btn btn-primary" id="practice-submit" type="submit">Get feedback <span aria-hidden="true">↗</span></button>
+          <p class="practice-result" id="practice-result" role="status" aria-live="polite"></p>
+        </form>
+        <aside class="practice-aside">
+          <div class="rail-intro">
+            <span class="rail-symbol">✳</span>
+            <span class="eyebrow">A SMALL REMINDER</span>
+            <p>You don't need perfect words. You just need to begin.</p>
+          </div>
+        </aside>
       </div>
     </div>
 
@@ -185,8 +228,8 @@
 <script>
   // ─── State ────────────────────────────────────────────────────────────────
   let currentTopic   = "";     // detected topic from last AI response
-  let lastUserMsg    = "";     // stored for hint requests
   let isLoading      = false;  // prevent double sends
+  let isEvaluating   = false;
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   if (!requireAuth("student")) { /* redirected */ }
@@ -204,13 +247,14 @@
 
   // ─── Section Navigation ───────────────────────────────────────────────────
   function showSection(name) {
-    ["chat", "progress", "history", "summaries"].forEach(s => {
+    ["chat", "progress", "roadmap", "practice", "history", "summaries"].forEach(s => {
       document.getElementById(`section-${s}`).style.display = (s === name) ? "block" : "none";
       document.getElementById(`nav-${s}`).classList.toggle("active", s === name);
     });
 
     // Load data when switching sections
     if (name === "progress")   loadProgress();
+    if (name === "roadmap")    loadRoadmap();
     if (name === "history")    loadHistory();
     if (name === "summaries")  loadSummaries();
   }
@@ -234,7 +278,6 @@
     const message = input.value.trim();
     if (!message || isLoading) return;
 
-    lastUserMsg = message;   // store for hint requests
     input.value = "";
     input.style.height = "auto";
 
@@ -373,27 +416,6 @@
     if (typing) typing.remove();
   }
 
-  // ─── Hints ────────────────────────────────────────────────────────────────
-  async function requestHint(level) {
-    const question = lastUserMsg || "my last question";
-    const responseEl = document.getElementById("hint-response");
-
-    responseEl.style.display = "block";
-    responseEl.textContent = "Generating hint…";
-
-    try {
-      const data = await api("/hint", "POST", {
-        question,
-        hint_level: level,
-      });
-
-      const levelNames = { 1: "🌱 Concept Hint", 2: "🔧 Method Hint", 3: "📖 Detailed Hint" };
-      responseEl.innerHTML = `<strong>${levelNames[level]}:</strong> ${escapeHtml(data.hint).replace(/\n/g, "<br>")}`;
-    } catch (err) {
-      responseEl.textContent = `⚠️ ${err.message}`;
-    }
-  }
-
   // ─── End Session ──────────────────────────────────────────────────────────
   async function endSession() {
     if (!confirm("End this session and generate a summary of what you learned?")) return;
@@ -448,6 +470,127 @@
       `).join("");
     } catch (err) {
       container.innerHTML = `<p style="color: var(--danger); font-size: 0.88rem;">Failed to load progress: ${err.message}</p>`;
+    }
+  }
+
+  // ─── Learning Path ───────────────────────────────────────────────────────
+  async function loadRoadmap() {
+    const roadmapName = document.getElementById("roadmap-select").value;
+    const overview = document.getElementById("roadmap-overview");
+    const list = document.getElementById("roadmap-list");
+    overview.textContent = "Loading your learning path…";
+    list.innerHTML = "";
+
+    try {
+      const data = await api(`/roadmap?roadmap_name=${encodeURIComponent(roadmapName)}`);
+      const status = data.status;
+      const topics = status.all_topics || [];
+      const completed = new Set(status.completed_topics || []);
+      const currentTopic = status.current_topic;
+      const progress = Number(status.progress_percent) || 0;
+
+      overview.innerHTML = `
+        <div class="roadmap-overview-top">
+          <div>
+            <span class="eyebrow">${escapeHtml(data.roadmap)} ROADMAP</span>
+            <h3>${completed.size} of ${topics.length} topics explored</h3>
+          </div>
+          <strong>${escapeHtml(String(progress))}%</strong>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${Math.max(0, Math.min(100, progress))}%"></div></div>
+        <p>${currentTopic ? `Up next: <strong>${escapeHtml(currentTopic)}</strong>` : "You've completed every topic in this path."}</p>
+      `;
+
+      if (!topics.length) {
+        list.innerHTML = `<div class="card empty-state"><p>No topics are available in this learning path yet.</p></div>`;
+        return;
+      }
+
+      list.innerHTML = topics.map((topic, index) => {
+        const isComplete = completed.has(topic);
+        const isCurrent = topic === currentTopic;
+        return `
+          <article class="roadmap-topic ${isComplete ? "is-complete" : ""} ${isCurrent ? "is-current" : ""}">
+            <span class="roadmap-step">${String(index + 1).padStart(2, "0")}</span>
+            <span class="roadmap-topic-copy">
+              <strong>${escapeHtml(topic)}</strong>
+              <small>${isComplete ? "Completed" : isCurrent ? "Your current focus" : "Coming up next"}</small>
+            </span>
+            ${isComplete
+              ? '<span class="roadmap-done" aria-label="Completed">✓</span>'
+              : isCurrent
+                ? `<button class="btn btn-ghost btn-sm" data-complete-topic="${escapeHtml(topic)}">Mark complete</button>`
+                : '<span class="roadmap-lock">UP NEXT</span>'}
+          </article>`;
+      }).join("");
+      list.querySelectorAll("[data-complete-topic]").forEach(button => {
+        button.addEventListener("click", () => completeRoadmapTopic(button.dataset.completeTopic));
+      });
+    } catch (err) {
+      overview.innerHTML = `<p class="error-message">Couldn't load this learning path: ${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  async function completeRoadmapTopic(topic) {
+    const roadmapName = document.getElementById("roadmap-select").value;
+    try {
+      await api("/roadmap/complete", "POST", { roadmap_name: roadmapName, topic_name: topic });
+      showToast(`${topic} marked complete. Nice work!`, "success");
+      loadRoadmap();
+    } catch (err) {
+      showToast(`Couldn't update your learning path: ${err.message}`, "error");
+    }
+  }
+
+  // ─── Practice ────────────────────────────────────────────────────────────
+  async function submitPractice(event) {
+    event.preventDefault();
+    if (isEvaluating) return;
+
+    const question = document.getElementById("practice-question").value.trim();
+    const answer = document.getElementById("practice-answer").value.trim();
+    const topic = document.getElementById("practice-topic").value.trim();
+    const button = document.getElementById("practice-submit");
+    const result = document.getElementById("practice-result");
+    if (!question || !answer) {
+      result.textContent = "Add both a question and your explanation to continue.";
+      result.className = "practice-result error-message";
+      return;
+    }
+
+    isEvaluating = true;
+    button.disabled = true;
+    button.textContent = "Reviewing your explanation…";
+    result.className = "practice-result";
+    result.textContent = "";
+    try {
+      const data = await api("/evaluate", "POST", {
+        question,
+        student_answer: answer,
+        topic: topic || null,
+        is_explanation: true,
+      });
+      const evaluation = data.evaluation;
+      const score = Math.max(0, Math.min(100, Number(evaluation.score) || 0));
+      const misconceptions = Array.isArray(evaluation.misconceptions) ? evaluation.misconceptions : [];
+      result.className = "practice-result";
+      result.innerHTML = `
+        <div class="practice-feedback-heading">
+          <span class="eyebrow">YOUR FEEDBACK</span>
+          <strong>${score}%</strong>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${score}%"></div></div>
+        <p>${escapeHtml(evaluation.feedback || data.message || "Your explanation has been reviewed.")}</p>
+        ${misconceptions.length ? `<div class="feedback-next"><strong>A thought to revisit</strong><ul>${misconceptions.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>` : ""}
+        <span class="feedback-topic">${escapeHtml(data.topic || topic || "General")}</span>
+      `;
+    } catch (err) {
+      result.className = "practice-result error-message";
+      result.textContent = `Couldn't review your explanation: ${err.message}`;
+    } finally {
+      isEvaluating = false;
+      button.disabled = false;
+      button.innerHTML = 'Get feedback <span aria-hidden="true">↗</span>';
     }
   }
 

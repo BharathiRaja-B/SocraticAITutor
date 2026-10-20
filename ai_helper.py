@@ -39,7 +39,16 @@ def call_ai(messages: list, max_tokens: int = 600, temperature: float = 0.7) -> 
         response = requests.post(OPENROUTER_URL, json=payload, headers=headers, timeout=30)
         response.raise_for_status()
         data = response.json()
-        return data["choices"][0]["message"]["content"].strip()
+        choices = data.get("choices") if isinstance(data, dict) else None
+        if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+            return "⚠️ Unexpected response from AI service."
+
+        message = choices[0].get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(content, str) or not content.strip():
+            return "⚠️ The AI returned an empty response. Please try again."
+
+        return content.strip()
     except requests.exceptions.Timeout:
         return "⚠️ The AI took too long to respond. Please try again."
     except requests.exceptions.RequestException as e:
