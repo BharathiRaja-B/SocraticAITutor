@@ -1,4 +1,6 @@
-# 🎓 AI Personal Tutor
+# SocraticAITutor
+
+## 🎓 AI Personal Tutor
 
 A full-stack Generative AI web application that teaches using the **Socratic method** — guiding students to discover answers through questions rather than just handing them solutions.
 
