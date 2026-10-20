@@ -5,7 +5,7 @@ bcrypt==4.1.3
 python-dotenv==1.0.1
 requests==2.32.3
 python-multipart==0.0.9
-langchain>=0.0.300
-chromadb>=0.4.0
-sentence-transformers>=2.2.2
-PyPDF2>=3.0.0
+
+# Optional RAG dependencies are intentionally not installed in the Vercel function.
+# ChromaDB and sentence-transformers pull multi-gigabyte ML runtimes and exceed
+# Vercel's Python function bundle limit. Deploy RAG as a separate service when needed.
